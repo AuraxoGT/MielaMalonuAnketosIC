@@ -3,35 +3,32 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const CONFIG = {
         SUPABASE: {
-            URL: "https://smodsdsnswwtnbnmzhse.supabase.co/rest/v1",
-            API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb2RzZHNuc3d3dG5ibm16aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjUyOTAsImV4cCI6MjA1NzIwMTI5MH0.zMdjymIaGU66_y6X-fS8nKnrWgJjXgw7NgXPBIzVCiI"
+            URL: "https://smodsdsnswwtnbnmzhse.supabase.co/rest/v1",  // Correct Supabase endpoint for REST API
+            API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb2RzZHNuc3d3dG5ibm16aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjUyOTAsImV4cCI6MjA1NzIwMTI5MH0.zMdjymIaGU66_y6X-fS8nKnrWgJjXgw7NgXPBIzVCiI" // Replace with your actual Supabase API key
         },
-        ADMIN_PASSWORD: "987412365"
+        ADMIN_PASSWORD: "987412365" // Change this to your desired password
     };
 
-    const BLACKLIST_ID = 1; // ID of the blacklist row in Supabase
-    let fetchedData = [];
-    let blacklist = [];
-    let isOnline = false;
+    const dataTableBody = document.querySelector("#data-table tbody");
+    let fetchedData = []; // Store fetched data globally
 
-    // Authenticate Admin
+    // Ask for password only on page load
     async function authenticateUser() {
         const userPassword = prompt("🔒 Enter Admin Password:");
+
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
             console.log("✅ Password correct, loading data...");
-            await fetchSupabaseData();
-            await fetchBlacklist();
-            await fetchStatus();
+            await fetchSupabaseData(); // Fetch data after password check
         } else {
             alert("❌ Incorrect password! Reloading...");
-            location.reload();
+            location.reload(); // Refresh the page if wrong password
         }
     }
 
     // Fetch Supabase Data
     async function fetchSupabaseData() {
         try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/IC`, {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/status`, {
                 method: "GET",
                 headers: {
                     "apikey": CONFIG.SUPABASE.API_KEY,
@@ -41,8 +38,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             if (!response.ok) throw new Error("⚠️ Failed to fetch data");
 
-            fetchedData = await response.json();
-            populateTable(fetchedData);
+            fetchedData = await response.json(); // Store data globally
+            populateTable(fetchedData); // Display data
 
         } catch (error) {
             console.error("❌ Error fetching Supabase data:", error);
@@ -50,150 +47,9 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Fetch Blacklist from Supabase
-    async function fetchBlacklist() {
-        try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}&select=blacklist`, {
-                method: "GET",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (!response.ok) throw new Error("⚠️ Failed to fetch blacklist data");
-
-            const data = await response.json();
-            if (data.length > 0) {
-                blacklist = data[0].blacklist || [];
-                console.log("📜 Current Blacklist:", blacklist);
-            } else {
-                console.log("❌ No blacklist found in Supabase.");
-                blacklist = [];
-            }
-        } catch (error) {
-            console.error("❌ Error fetching blacklist:", error);
-            alert("⚠️ Unable to fetch blacklist.");
-        }
-    }
-
-    // Add User to Blacklist
-    async function addToBlacklist() {
-        const userId = prompt("Enter the User ID to Blacklist:");
-        if (!userId || blacklist.includes(userId)) {
-            alert("⚠️ User already in blacklist or invalid input.");
-            return;
-        }
-
-        blacklist.push(userId);
-
-        try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}`, {
-                method: "PATCH",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ blacklist })
-            });
-
-            if (!response.ok) throw new Error("⚠️ Failed to update blacklist");
-            alert("✅ User added to blacklist!");
-            console.log("📜 Updated Blacklist:", blacklist);
-
-        } catch (error) {
-            console.error("❌ Error updating blacklist:", error);
-            alert("⚠️ Unable to update blacklist.");
-        }
-    }
-
-    // Remove User from Blacklist
-    async function removeFromBlacklist() {
-        const userId = prompt("Enter the User ID to Remove from Blacklist:");
-        if (!userId || !blacklist.includes(userId)) {
-            alert("⚠️ User not found in blacklist.");
-            return;
-        }
-
-        blacklist = blacklist.filter(id => id !== userId);
-
-        try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}`, {
-                method: "PATCH",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ blacklist })
-            });
-
-            if (!response.ok) throw new Error("⚠️ Failed to update blacklist");
-            alert("✅ User removed from blacklist!");
-            console.log("📜 Updated Blacklist:", blacklist);
-
-        } catch (error) {
-            console.error("❌ Error updating blacklist:", error);
-            alert("⚠️ Unable to update blacklist.");
-        }
-    }
-
-    // Fetch Status
-    async function fetchStatus() {
-        try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Status?id=eq.${BLACKLIST_ID}&select=status`, {
-                method: "GET",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json"
-                }
-            });
-
-            if (!response.ok) throw new Error("⚠️ Failed to fetch status");
-
-            const data = await response.json();
-            isOnline = data.length > 0 ? data[0].status : false;
-            updateStatusDisplay();
-
-        } catch (error) {
-            console.error("❌ Error fetching status:", error);
-        }
-    }
-
-    // Toggle Status
-    async function toggleStatus() {
-        isOnline = !isOnline;
-        updateStatusDisplay();
-
-        try {
-            await fetch(`${CONFIG.SUPABASE.URL}/Status?id=eq.${BLACKLIST_ID}`, {
-                method: "PATCH",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ status: isOnline })
-            });
-
-            console.log(`🔄 Status changed to: ${isOnline ? "Online" : "Offline"}`);
-        } catch (error) {
-            console.error("❌ Error updating status:", error);
-        }
-    }
-
-    function updateStatusDisplay() {
-        const statusDisplay = document.getElementById("statusDisplay");
-        statusDisplay.textContent = isOnline ? "ONLINE" : "OFFLINE";
-        statusDisplay.classList.toggle("status-online", isOnline);
-        statusDisplay.classList.toggle("status-offline", !isOnline);
-    }
-
-    // Populate Table
+    // Populate Table with Data
     function populateTable(data) {
-        const dataTableBody = document.querySelector("#data-table tbody");
-        dataTableBody.innerHTML = "";
+        dataTableBody.innerHTML = ""; // Clear table before adding new rows
 
         data.forEach(item => {
             const row = document.createElement("tr");
@@ -208,11 +64,106 @@ document.addEventListener("DOMContentLoaded", async function () {
         });
     }
 
-    // Event Listeners
-    document.getElementById("statusButton").addEventListener("click", toggleStatus);
+    // Search & Filter Table (Updates live as you type)
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const searchInput = this.value.toLowerCase();
+
+        const filteredData = fetchedData.filter(item => 
+            Object.values(item).some(value => 
+                value.toString().toLowerCase().includes(searchInput)
+            )
+        );
+
+        populateTable(filteredData); // Re-populate table with filtered results
+    });
+
+    // Update status
+    async function updateStatus(status) {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/status?id=eq.1`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": CONFIG.SUPABASE.API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    status: status
+                })
+            });
+
+            if (!response.ok) throw new Error("⚠️ Failed to update status");
+
+            const data = await response.json();
+            console.log("✅ Status updated successfully:", data);
+            document.getElementById("statusDisplay").textContent = status ? "Online" : "Offline";
+            document.getElementById("statusDisplay").classList.toggle("status-online", status);
+            document.getElementById("statusDisplay").classList.toggle("status-offline", !status);
+
+        } catch (error) {
+            console.error("❌ Error updating status:", error);
+            alert("⚠️ Unable to update status.");
+        }
+    }
+
+    // Toggle Status on button click
+    document.getElementById("statusButton").addEventListener("click", async () => {
+        const currentStatus = document.getElementById("statusDisplay").textContent === "Offline" ? false : true;
+        const newStatus = !currentStatus;
+        await updateStatus(newStatus);
+    });
+
+    // Add to blacklist
+    async function addToBlacklist() {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/blacklist`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": CONFIG.SUPABASE.API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    blacklist: JSON.stringify([1, 2, 3]) // Sample user IDs to be added to blacklist (adjust as needed)
+                })
+            });
+
+            if (!response.ok) throw new Error("⚠️ Failed to add to blacklist");
+
+            const data = await response.json();
+            console.log("✅ Added to blacklist:", data);
+        } catch (error) {
+            console.error("❌ Error adding to blacklist:", error);
+            alert("⚠️ Unable to add to blacklist.");
+        }
+    }
+
+    // Remove from blacklist
+    async function removeFromBlacklist() {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/blacklist`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": CONFIG.SUPABASE.API_KEY,
+                    "Content-Type": "application/json"
+                },
+                body: JSON.stringify({
+                    blacklist: JSON.stringify([1, 2]) // Sample user IDs to be removed from blacklist (adjust as needed)
+                })
+            });
+
+            if (!response.ok) throw new Error("⚠️ Failed to remove from blacklist");
+
+            const data = await response.json();
+            console.log("✅ Removed from blacklist:", data);
+        } catch (error) {
+            console.error("❌ Error removing from blacklist:", error);
+            alert("⚠️ Unable to remove from blacklist.");
+        }
+    }
+
+    // Attach events to buttons
     document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
     document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
 
-    // Authenticate and Load Data
+    // Authenticate once and fetch data
     authenticateUser();
 });
