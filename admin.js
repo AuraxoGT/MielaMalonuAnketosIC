@@ -9,14 +9,14 @@ document.addEventListener("DOMContentLoaded", async function () {
         ADMIN_PASSWORD: "987412365"
     };
 
+    const BLACKLIST_ID = 1; // ID of the blacklist row in Supabase
     const dataTableBody = document.querySelector("#data-table tbody");
     let fetchedData = [];
     let blacklist = [];
 
-    // Authenticate on page load
+    // Authenticate Admin
     async function authenticateUser() {
         const userPassword = prompt("🔒 Enter Admin Password:");
-
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
             console.log("✅ Password correct, loading data...");
             await fetchSupabaseData();
@@ -27,10 +27,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Fetch Data from Supabase
+    // Fetch Supabase Data
     async function fetchSupabaseData() {
         try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/IC?select=*`, {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/IC`, {
                 method: "GET",
                 headers: {
                     "apikey": CONFIG.SUPABASE.API_KEY,
@@ -49,10 +49,10 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Fetch Blacklist Data
+    // Fetch Blacklist
     async function fetchBlacklist() {
         try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?select=blacklist_data`, {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}&select=blacklist`, {
                 method: "GET",
                 headers: {
                     "apikey": CONFIG.SUPABASE.API_KEY,
@@ -63,19 +63,43 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (!response.ok) throw new Error("⚠️ Failed to fetch blacklist data");
 
             const data = await response.json();
-            blacklist = data.length > 0 ? JSON.parse(data[0].blacklist_data) : [];
+            blacklist = data.length > 0 ? data[0].blacklist : [];
+            console.log("📜 Current Blacklist:", blacklist);
 
         } catch (error) {
-            console.error("❌ Error fetching Supabase blacklist:", error);
-            alert("⚠️ Unable to fetch blacklist data.");
+            console.error("❌ Error fetching blacklist:", error);
+            alert("⚠️ Unable to fetch blacklist.");
+        }
+    }
+
+    // Update Blacklist
+    async function updateBlacklist() {
+        try {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}`, {
+                method: "PATCH",
+                headers: {
+                    "apikey": CONFIG.SUPABASE.API_KEY,
+                    "Content-Type": "application/json",
+                    "Prefer": "return=minimal"
+                },
+                body: JSON.stringify({ blacklist })
+            });
+
+            if (!response.ok) throw new Error("⚠️ Failed to update blacklist");
+            alert("✅ Blacklist updated!");
+            console.log("📜 Updated Blacklist:", blacklist);
+
+        } catch (error) {
+            console.error("❌ Error updating blacklist:", error);
+            alert("⚠️ Unable to update blacklist.");
         }
     }
 
     // Populate Table
     function populateTable(data) {
         dataTableBody.innerHTML = "";
+
         data.forEach(item => {
-            const isBlacklisted = blacklist.includes(item.id);
             const row = document.createElement("tr");
             row.innerHTML = `
                 <td>${item.USERIS}</td>
@@ -83,59 +107,61 @@ document.addEventListener("DOMContentLoaded", async function () {
                 <td>${item.PAVARDĖ}</td>
                 <td>${item["STEAM NICKAS"]}</td>
                 <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
-                <td>${isBlacklisted ? "🚫 Blacklisted" : "✅ Active"}</td>
-                <td>
-                    <button onclick="toggleStatus('${item.id}', '${item.status}')">🔄 Change Status</button>
-                    <button onclick="addToBlacklist('${item.id}')">🚫 Blacklist</button>
-                    <button onclick="removeFromBlacklist('${item.id}')">✅ Remove Blacklist</button>
-                </td>
             `;
             dataTableBody.appendChild(row);
         });
     }
 
-    // Toggle User Status
-    async function toggleStatus(userId, currentStatus) {
-        const newStatus = currentStatus === "online" ? "offline" : "online";
-        await updateUser(userId, { status: newStatus });
-    }
+    // Search Filter
+    document.getElementById("searchInput").addEventListener("input", function () {
+        const searchInput = this.value.toLowerCase();
 
-    // Add to Blacklist (Update JSON String)
-    async function addToBlacklist(userId) {
-        if (!blacklist.includes(userId)) {
-            blacklist.push(userId);
-            await updateBlacklist(blacklist);
+        const filteredData = fetchedData.filter(item =>
+            Object.values(item).some(value =>
+                value.toString().toLowerCase().includes(searchInput)
+            )
+        );
+
+        populateTable(filteredData);
+    });
+
+    // Admin Panel - Status Control
+    const statusButton = document.getElementById("statusButton");
+    const statusDisplay = document.getElementById("statusDisplay");
+    let isOnline = false;
+
+    statusButton.addEventListener("click", function () {
+        isOnline = !isOnline;
+        statusDisplay.textContent = isOnline ? "ONLINE" : "OFFLINE";
+        statusDisplay.classList.toggle("status-online", isOnline);
+        statusDisplay.classList.toggle("status-offline", !isOnline);
+        console.log(`🔄 Status changed: ${isOnline ? "Online" : "Offline"}`);
+    });
+
+    // Admin Panel - Add to Blacklist
+    document.getElementById("blacklistButton").addEventListener("click", function () {
+        const userId = prompt("Enter the User ID to Blacklist:");
+        if (!userId || blacklist.includes(userId)) {
+            alert("⚠️ User already in blacklist or invalid input.");
+            return;
         }
-    }
 
-    // Remove from Blacklist (Update JSON String)
-    async function removeFromBlacklist(userId) {
+        blacklist.push(userId);
+        updateBlacklist();
+    });
+
+    // Admin Panel - Remove from Blacklist
+    document.getElementById("removeButton").addEventListener("click", function () {
+        const userId = prompt("Enter the User ID to Remove from Blacklist:");
+        if (!userId || !blacklist.includes(userId)) {
+            alert("⚠️ User not found in blacklist.");
+            return;
+        }
+
         blacklist = blacklist.filter(id => id !== userId);
-        await updateBlacklist(blacklist);
-    }
+        updateBlacklist();
+    });
 
-    // Update Blacklist in Supabase
-    async function updateBlacklist(newBlacklist) {
-        try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.1`, {
-                method: "PATCH",
-                headers: {
-                    "apikey": CONFIG.SUPABASE.API_KEY,
-                    "Content-Type": "application/json",
-                    "Prefer": "return=minimal"
-                },
-                body: JSON.stringify({ blacklist_data: JSON.stringify(newBlacklist) })
-            });
-
-            if (!response.ok) throw new Error("⚠️ Failed to update blacklist");
-            alert("✅ Blacklist updated!");
-            fetchSupabaseData();
-
-        } catch (error) {
-            console.error("❌ Error updating Supabase blacklist:", error);
-            alert("⚠️ Unable to update blacklist.");
-        }
-    }
-
+    // Authenticate and Load Data
     authenticateUser();
 });
