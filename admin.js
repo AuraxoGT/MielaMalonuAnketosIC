@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Fetch Blacklist
+    // Fetch Blacklist from Supabase
     async function fetchBlacklist() {
         try {
             const response = await fetch(`${CONFIG.SUPABASE.URL}/Blacklist?id=eq.${BLACKLIST_ID}&select=blacklist`, {
@@ -64,9 +64,13 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (!response.ok) throw new Error("⚠️ Failed to fetch blacklist data");
 
             const data = await response.json();
-            blacklist = data.length > 0 ? data[0].blacklist : [];
-            console.log("📜 Current Blacklist:", blacklist);
-
+            if (data.length > 0) {
+                blacklist = data[0].blacklist || [];
+                console.log("📜 Current Blacklist:", blacklist);
+            } else {
+                console.log("❌ No blacklist found in Supabase.");
+                blacklist = [];
+            }
         } catch (error) {
             console.error("❌ Error fetching blacklist:", error);
             alert("⚠️ Unable to fetch blacklist.");
