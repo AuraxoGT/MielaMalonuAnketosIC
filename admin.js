@@ -12,7 +12,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const BLACKLIST_ID = 1; // ID of the blacklist row in Supabase
     let fetchedData = [];
     let blacklist = [];
-    let isOnline = false;
+    let isOnline = "offline"; // Change to string instead of boolean
 
     // Authenticate Admin
     async function authenticateUser() {
@@ -153,7 +153,16 @@ document.addEventListener("DOMContentLoaded", async function () {
             if (!response.ok) throw new Error("⚠️ Failed to fetch status");
 
             const data = await response.json();
-            isOnline = data.length > 0 ? data[0].status : false;
+            // Update to handle string values
+            if (data.length > 0) {
+                isOnline = data[0].status;
+                // Convert to string if it's still boolean
+                if (typeof isOnline === 'boolean') {
+                    isOnline = isOnline ? "online" : "offline";
+                }
+            } else {
+                isOnline = "offline";
+            }
             updateStatusDisplay();
 
         } catch (error) {
@@ -163,7 +172,8 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     // Toggle Status
     async function toggleStatus() {
-        isOnline = !isOnline;
+        // Toggle between "online" and "offline" strings
+        isOnline = isOnline === "online" ? "offline" : "online";
         updateStatusDisplay();
 
         try {
@@ -174,10 +184,10 @@ document.addEventListener("DOMContentLoaded", async function () {
                     "Content-Type": "application/json",
                     "Prefer": "return=minimal"
                 },
-                body: JSON.stringify({ status: isOnline })
+                body: JSON.stringify({ status: isOnline }) // Now sending "online" or "offline"
             });
 
-            console.log(`🔄 Status changed to: ${isOnline ? "Online" : "Offline"}`);
+            console.log(`🔄 Status changed to: ${isOnline}`);
         } catch (error) {
             console.error("❌ Error updating status:", error);
         }
@@ -185,9 +195,10 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     function updateStatusDisplay() {
         const statusDisplay = document.getElementById("statusDisplay");
-        statusDisplay.textContent = isOnline ? "ONLINE" : "OFFLINE";
-        statusDisplay.classList.toggle("status-online", isOnline);
-        statusDisplay.classList.toggle("status-offline", !isOnline);
+        statusDisplay.textContent = isOnline.toUpperCase();
+        // Update class logic based on string values
+        statusDisplay.classList.toggle("status-online", isOnline === "online");
+        statusDisplay.classList.toggle("status-offline", isOnline === "offline");
     }
 
     // Populate Table
