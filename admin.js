@@ -3,7 +3,7 @@ document.addEventListener("DOMContentLoaded", async function () {
 
     const CONFIG = {
         SUPABASE: {
-            URL: "https://smodsdsnswwtnbnmzhse.supabase.co/rest/v1",  // Correct Supabase endpoint for REST API
+            URL: "https://smodsdsnswwtnbnmzhse.supabase.co/rest/v1",  // Supabase URL
             API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb2RzZHNuc3d3dG5ibm16aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjUyOTAsImV4cCI6MjA1NzIwMTI5MH0.zMdjymIaGU66_y6X-fS8nKnrWgJjXgw7NgXPBIzVCiI" // Replace with your actual Supabase API key
         },
         ADMIN_PASSWORD: "987412365" // Change this to your desired password
@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Fetch Supabase Data
     async function fetchSupabaseData() {
         try {
-            const response = await fetch(`${CONFIG.SUPABASE.URL}/status`, {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/users`, {
                 method: "GET",
                 headers: {
                     "apikey": CONFIG.SUPABASE.API_KEY,
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         populateTable(filteredData); // Re-populate table with filtered results
     });
 
-    // Update status
+    // Update Status
     async function updateStatus(status) {
         try {
             const response = await fetch(`${CONFIG.SUPABASE.URL}/status?id=eq.1`, {
@@ -112,7 +112,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         await updateStatus(newStatus);
     });
 
-    // Add to blacklist
+    // Add to Blacklist
     async function addToBlacklist() {
         try {
             const response = await fetch(`${CONFIG.SUPABASE.URL}/blacklist`, {
@@ -136,7 +136,7 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Remove from blacklist
+    // Remove from Blacklist
     async function removeFromBlacklist() {
         try {
             const response = await fetch(`${CONFIG.SUPABASE.URL}/blacklist`, {
