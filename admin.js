@@ -243,6 +243,36 @@ function populateTable(data) {
     document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
     document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
 
+function filterTable() {
+    const input = document.getElementById("searchInput");
+    const filter = input.value.toUpperCase();
+    const table = document.getElementById("data-table");
+    const tr = table.getElementsByTagName("tr");
+
+    // Loop starts at 1 to skip the header row
+    for (let i = 1; i < tr.length; i++) {
+        const row = tr[i];
+        const tds = row.getElementsByTagName("td");
+        let rowContainsFilter = false;
+        
+        // Check each cell in the row
+        for (let j = 0; j < tds.length; j++) {
+            const cell = tds[j];
+            if (cell) {
+                const cellText = cell.textContent || cell.innerText;
+                if (cellText.toUpperCase().indexOf(filter) > -1) {
+                    rowContainsFilter = true;
+                    break;
+                }
+            }
+        }
+        
+        // Show or hide the row based on the search query
+        row.style.display = rowContainsFilter ? "" : "none";
+    }
+}
+
+
     // Authenticate and Load Data
     authenticateUser();
 });
