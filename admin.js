@@ -164,6 +164,18 @@ document.addEventListener("DOMContentLoaded", async function () {
                 isOnline = "offline";
             }
             updateStatusDisplay();
+function updateStatusDisplay() {
+    const statusDisplay = document.getElementById("statusDisplay");
+    if (isOnline === "online") {
+        statusDisplay.textContent = "The system is online!"; // Custom text for online
+        statusDisplay.classList.add("status-online");
+        statusDisplay.classList.remove("status-offline");
+    } else {
+        statusDisplay.textContent = "The system is offline."; // Custom text for offline
+        statusDisplay.classList.add("status-offline");
+        statusDisplay.classList.remove("status-online");
+    }
+}
 
         } catch (error) {
             console.error("❌ Error fetching status:", error);
