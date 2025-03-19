@@ -226,7 +226,7 @@ function populateTable(data) {
     data.forEach((item, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>${index + 1}</td> <!-- Row number -->
+            <td>${index + 1}.</td> <!-- Row number -->
             <td>${item.USERIS}</td>
             <td>${item.VARDAS}</td>
             <td>${item.PAVARDĖ}</td>
