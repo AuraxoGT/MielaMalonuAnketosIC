@@ -280,11 +280,6 @@ function filterTable() {
     }
 }
 
-        
-        // Show or hide the row based on the search query
-        row.style.display = rowContainsFilter ? "" : "none";
-    }
-}
 
 
     // Authenticate and Load Data
