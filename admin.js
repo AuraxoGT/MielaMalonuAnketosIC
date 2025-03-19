@@ -197,8 +197,8 @@ document.addEventListener("DOMContentLoaded", async function () {
         const statusDisplay = document.getElementById("statusDisplay");
         statusDisplay.textContent = isOnline.toUpperCase();
         // Update class logic based on string values
-        statusDisplay.classList.toggle("status-online", isOnline === "online");
-        statusDisplay.classList.toggle("status-offline", isOnline === "offline");
+        statusDisplay.classList.toggle("status-online", isOnline === "✅ ATIDARYTOS ✅");
+        statusDisplay.classList.toggle("status-offline", isOnline === "❌ UŽDARYTOS ❌");
     }
 
     // Populate Table
