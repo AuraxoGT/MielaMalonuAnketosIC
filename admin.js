@@ -242,7 +242,7 @@ function populateTable(data) {
     document.getElementById("statusButton").addEventListener("click", toggleStatus);
     document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
     document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
-document.addEventListener("DOMContentLoaded", function () {
+    document.addEventListener("DOMContentLoaded", 
     document.getElementById("searchInput").addEventListener("keyup", filterTable);
 
 function filterTable() {
