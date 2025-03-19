@@ -167,11 +167,11 @@ document.addEventListener("DOMContentLoaded", async function () {
 function updateStatusDisplay() {
     const statusDisplay = document.getElementById("statusDisplay");
     if (isOnline === "online") {
-        statusDisplay.textContent = "The system is online!"; // Custom text for online
+        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
         statusDisplay.classList.add("status-online");
         statusDisplay.classList.remove("status-offline");
     } else {
-        statusDisplay.textContent = "The system is offline."; // Custom text for offline
+        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
         statusDisplay.classList.add("status-offline");
         statusDisplay.classList.remove("status-online");
     }
