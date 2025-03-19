@@ -244,18 +244,27 @@ function populateTable(data) {
     document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
 
 function filterTable() {
+    console.log("🔍 filterTable() is running..."); // Debugging log
+
     const input = document.getElementById("searchInput");
-    const filter = input.value.toUpperCase();
+    console.log("🆔 Input value:", input ? input.value : "❌ Not Found");
+
     const table = document.getElementById("data-table");
+    console.log("📊 Table found:", table ? "✅ Yes" : "❌ No");
+
+    if (!input || !table) {
+        console.error("❌ searchInput or data-table not found in DOM!");
+        return;
+    }
+
+    const filter = input.value.toUpperCase();
     const tr = table.getElementsByTagName("tr");
 
-    // Loop starts at 1 to skip the header row
     for (let i = 1; i < tr.length; i++) {
         const row = tr[i];
         const tds = row.getElementsByTagName("td");
         let rowContainsFilter = false;
-        
-        // Check each cell in the row
+
         for (let j = 0; j < tds.length; j++) {
             const cell = tds[j];
             if (cell) {
@@ -266,6 +275,11 @@ function filterTable() {
                 }
             }
         }
+
+        row.style.display = rowContainsFilter ? "" : "none";
+    }
+}
+
         
         // Show or hide the row based on the search query
         row.style.display = rowContainsFilter ? "" : "none";
