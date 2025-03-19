@@ -206,12 +206,17 @@ function updateStatusDisplay() {
     }
 
     function updateStatusDisplay() {
-        const statusDisplay = document.getElementById("statusDisplay");
-        statusDisplay.textContent = isOnline.toUpperCase();
-        // Update class logic based on string values
-        statusDisplay.classList.toggle("status-online", isOnline === "online");
-        statusDisplay.classList.toggle("status-offline", isOnline === "offline");
+    const statusDisplay = document.getElementById("statusDisplay");
+    if (isOnline === "online") {
+        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
+    } else {
+        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
     }
+    // Update class logic based on string values
+    statusDisplay.classList.toggle("status-online", isOnline === "online");
+    statusDisplay.classList.toggle("status-offline", isOnline === "offline");
+}
+
 
     // Populate Table
     function populateTable(data) {
