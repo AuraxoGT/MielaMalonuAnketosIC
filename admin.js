@@ -219,23 +219,24 @@ function updateStatusDisplay() {
 
 
     // Populate Table
-    function populateTable(data) {
-        const dataTableBody = document.querySelector("#data-table tbody");
-        dataTableBody.innerHTML = "";
+function populateTable(data) {
+    const dataTableBody = document.querySelector("#data-table tbody");
+    dataTableBody.innerHTML = "";
 
-        data.forEach(item => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${index + 1}</td>
-                <td>${item.USERIS}</td>
-                <td>${item.VARDAS}</td>
-                <td>${item.PAVARDĖ}</td>
-                <td>${item["STEAM NICKAS"]}</td>
-                <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
-            `;
-            dataTableBody.appendChild(row);
-        });
-    }
+    data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index + 1}</td> <!-- Row number -->
+            <td>${item.USERIS}</td>
+            <td>${item.VARDAS}</td>
+            <td>${item.PAVARDĖ}</td>
+            <td>${item["STEAM NICKAS"]}</td>
+            <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
+        `;
+        dataTableBody.appendChild(row);
+    });
+}
+
 
     // Event Listeners
     document.getElementById("statusButton").addEventListener("click", toggleStatus);
