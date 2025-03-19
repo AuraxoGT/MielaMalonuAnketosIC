@@ -242,45 +242,19 @@ function populateTable(data) {
     document.getElementById("statusButton").addEventListener("click", toggleStatus);
     document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
     document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
-    document.addEventListener("DOMContentLoaded", 
-    document.getElementById("searchInput").addEventListener("keyup", filterTable);
 
-function filterTable() {
-    console.log("🔍 filterTable() is running..."); // Debugging log
+ document.getElementById("searchInput").addEventListener("input", function () {
+        const searchInput = this.value.toLowerCase();
 
-    const input = document.getElementById("searchInput");
-    console.log("🆔 Input value:", input ? input.value : "❌ Not Found");
+        const filteredData = fetchedData.filter(item => 
+            Object.values(item).some(value => 
+                value.toString().toLowerCase().includes(searchInput)
+            )
+        );
 
-    const table = document.getElementById("data-table");
-    console.log("📊 Table found:", table ? "✅ Yes" : "❌ No");
+        populateTable(filteredData); // Re-populate table with filtered results
+    });
 
-    if (!input || !table) {
-        console.error("❌ searchInput or data-table not found in DOM!");
-        return;
-    }
-
-    const filter = input.value.toUpperCase();
-    const tr = table.getElementsByTagName("tr");
-
-    for (let i = 1; i < tr.length; i++) {
-        const row = tr[i];
-        const tds = row.getElementsByTagName("td");
-        let rowContainsFilter = false;
-
-        for (let j = 0; j < tds.length; j++) {
-            const cell = tds[j];
-            if (cell) {
-                const cellText = cell.textContent || cell.innerText;
-                if (cellText.toUpperCase().indexOf(filter) > -1) {
-                    rowContainsFilter = true;
-                    break;
-                }
-            }
-        }
-
-        row.style.display = rowContainsFilter ? "" : "none";
-    }
-}
-    // Authenticate and Load Data
+    // Authenticate once and fetch data
     authenticateUser();
-}); // ✅ This closing bracket might have been missing
+});
