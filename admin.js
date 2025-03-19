@@ -226,6 +226,7 @@ function updateStatusDisplay() {
         data.forEach(item => {
             const row = document.createElement("tr");
             row.innerHTML = `
+                <td>${index + 1}</td>
                 <td>${item.USERIS}</td>
                 <td>${item.VARDAS}</td>
                 <td>${item.PAVARDĖ}</td>
