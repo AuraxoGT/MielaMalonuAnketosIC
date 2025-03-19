@@ -279,9 +279,6 @@ function filterTable() {
         row.style.display = rowContainsFilter ? "" : "none";
     }
 }
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("searchInput").addEventListener("keyup", filterTable);
-    
     // Authenticate and Load Data
     authenticateUser();
 }); // ✅ This closing bracket might have been missing
