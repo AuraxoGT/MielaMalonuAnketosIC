@@ -516,7 +516,6 @@ a:hover {
     outline: none;
     transition: 0.3s ease-in-out;
 }
-
 #searchInput:focus {
     border-color: #4CAF50;
     box-shadow: 0 0 10px rgba(72, 255, 72, 0.6);
@@ -524,7 +523,6 @@ a:hover {
 .admin {
 width 100px;
 }
-
 .blurred-content {
     filter: blur(15px);
     pointer-events: none;
