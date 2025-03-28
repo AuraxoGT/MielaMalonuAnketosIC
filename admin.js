@@ -9,15 +9,26 @@ document.addEventListener("DOMContentLoaded", async function () {
         ADMIN_PASSWORD: "987412365"
     };
 
-    const BLACKLIST_ID = 1; // ID of the blacklist row in Supabase
+    const BLACKLIST_ID = 1;
     let fetchedData = [];
     let blacklist = [];
-    let isOnline = "offline"; // Change to string instead of boolean
+    let isOnline = "offline";
 
-    // Authenticate Admin
+    // Blurring functionality
+    function blurContent() {
+        document.body.classList.add('blurred-content');
+    }
+
+    function unblurContent() {
+        document.body.classList.remove('blurred-content');
+    }
+
+    // Modify the existing authenticateUser function
     async function authenticateUser() {
+        blurContent(); // Always start blurred
         const userPassword = prompt("🔒 Enter Admin Password:");
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
+            unblurContent(); // Unblur only on correct password
             console.log("✅ Password correct, loading data...");
             await fetchSupabaseData();
             await fetchBlacklist();
@@ -27,6 +38,7 @@ document.addEventListener("DOMContentLoaded", async function () {
             location.reload();
         }
     }
+
 
     // Fetch Supabase Data
     async function fetchSupabaseData() {
