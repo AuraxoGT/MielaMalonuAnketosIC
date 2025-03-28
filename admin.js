@@ -4,7 +4,7 @@ document.addEventListener("DOMContentLoaded", async function () {
     const CONFIG = {
         SUPABASE: {
             URL: "https://smodsdsnswwtnbnmzhse.supabase.co/rest/v1",
-            API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb2RzZHNuc3d3dG5ibm16aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjUyOTAsImV4cCI6MjA1NzIwMTI5MH0.zMdjymIaGU66_y6X-fS8nKnrWgKjXgw7NgXPBIzVCiI"
+            API_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNtb2RzZHNuc3d3dG5ibm16aHNlIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDE2MjUyOTAsImV4cCI6MjA1NzIwMTI5MH0.zMdjymIaGU66_y6X-fS8nKnrWgJjXgw7NgXPBIzVCiI"
         },
         ADMIN_PASSWORD: "987412365"
     };
@@ -12,24 +12,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     const BLACKLIST_ID = 1; // ID of the blacklist row in Supabase
     let fetchedData = [];
     let blacklist = [];
-    let isOnline = "offline";
-
-    // Blurring functionality
-    function blurContent() {
-        document.body.classList.add('blurred-content');
-    }
-
-    function unblurContent() {
-        document.body.classList.remove('blurred-content');
-    }
+    let isOnline = "offline"; // Change to string instead of boolean
 
     // Authenticate Admin
     async function authenticateUser() {
-        blurContent(); // Blur content initially
         const userPassword = prompt("🔒 Enter Admin Password:");
-        
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
-            unblurContent(); // Unblur if password is correct
             console.log("✅ Password correct, loading data...");
             await fetchSupabaseData();
             await fetchBlacklist();
@@ -176,6 +164,19 @@ document.addEventListener("DOMContentLoaded", async function () {
                 isOnline = "offline";
             }
             updateStatusDisplay();
+function updateStatusDisplay() {
+    const statusDisplay = document.getElementById("statusDisplay");
+    if (isOnline === "online") {
+        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
+        statusDisplay.classList.add("status-online");
+        statusDisplay.classList.remove("status-offline");
+    } else {
+        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
+        statusDisplay.classList.add("status-offline");
+        statusDisplay.classList.remove("status-online");
+    }
+}
+
         } catch (error) {
             console.error("❌ Error fetching status:", error);
         }
@@ -204,42 +205,46 @@ document.addEventListener("DOMContentLoaded", async function () {
         }
     }
 
-    // Update Status Display
     function updateStatusDisplay() {
-        const statusDisplay = document.getElementById("statusDisplay");
-        if (isOnline === "online") {
-            statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
-            statusDisplay.classList.add("status-online");
-            statusDisplay.classList.remove("status-offline");
-        } else {
-            statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
-            statusDisplay.classList.add("status-offline");
-            statusDisplay.classList.remove("status-online");
-        }
+    const statusDisplay = document.getElementById("statusDisplay");
+    if (isOnline === "online") {
+        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
+    } else {
+        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
     }
+    // Update class logic based on string values
+    statusDisplay.classList.toggle("status-online", isOnline === "online");
+    statusDisplay.classList.toggle("status-offline", isOnline === "offline");
+}
+
 
     // Populate Table
-    function populateTable(data) {
-        const dataTableBody = document.querySelector("#data-table tbody");
-        dataTableBody.innerHTML = "";
+function populateTable(data) {
+    const dataTableBody = document.querySelector("#data-table tbody");
+    dataTableBody.innerHTML = "";
 
-        data.forEach((item, index) => {
-            const row = document.createElement("tr");
-            row.innerHTML = `
-                <td>${index + 1}.</td> <!-- Row number -->
-                <td>${item.DISCORD_ID}</td>
-                <td>${item.USERIS}</td>
-                <td>${item.VARDAS}</td>
-                <td>${item.PAVARDĖ}</td>
-                <td>${item["STEAM NICKAS"]}</td>
-                <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
-            `;
-            dataTableBody.appendChild(row);
-        });
-    }
+    data.forEach((item, index) => {
+        const row = document.createElement("tr");
+        row.innerHTML = `
+            <td>${index + 1}.</td> <!-- Row number -->
+            <td>${item.DISCORD_ID}</td>
+            <td>${item.USERIS}</td>
+            <td>${item.VARDAS}</td>
+            <td>${item.PAVARDĖ}</td>
+            <td>${item["STEAM NICKAS"]}</td>
+            <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
+        `;
+        dataTableBody.appendChild(row);
+    });
+}
 
-    // Search Functionality
-    document.getElementById("searchInput").addEventListener("input", function () {
+
+    // Event Listeners
+    document.getElementById("statusButton").addEventListener("click", toggleStatus);
+    document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
+    document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
+
+ document.getElementById("searchInput").addEventListener("input", function () {
         const searchInput = this.value.toLowerCase();
 
         const filteredData = fetchedData.filter(item => 
@@ -250,11 +255,6 @@ document.addEventListener("DOMContentLoaded", async function () {
 
         populateTable(filteredData); // Re-populate table with filtered results
     });
-
-    // Event Listeners
-    document.getElementById("statusButton").addEventListener("click", toggleStatus);
-    document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
-    document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
 
     // Authenticate once and fetch data
     authenticateUser();
