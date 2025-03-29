@@ -544,13 +544,14 @@ width 100px;
 }
 .copy-btn {
     font-size: 0.7rem;
-    padding: 0;
-    margin-left: 2px;
+    padding: 0 3px;
+    margin-left: 5px;
     line-height: 1;
     vertical-align: middle;
     border: none;
     background: transparent;
     cursor: pointer;
+    display: inline-block;
 }
 
 .copy-flash {
