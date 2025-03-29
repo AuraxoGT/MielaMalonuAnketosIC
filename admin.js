@@ -239,11 +239,11 @@ function populateTable(data) {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${index + 1}.</td> <!-- Row number -->
-            <td>${item.DISCORD_ID}<button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
-            <td>${item.USERIS}<button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
-            <td>${item.VARDAS}<button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
-            <td>${item.PAVARDĖ}<button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
-            <td>${item["STEAM NICKAS"]}<button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
+            <td>${item.DISCORD_ID} <button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
+            <td>${item.USERIS} <button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
+            <td>${item.VARDAS} <button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
+            <td>${item.PAVARDĖ} <button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
+            <td>${item["STEAM NICKAS"]} <button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
             <td>
               <a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a>
               <button class="copy-btn" data-copy="${item["STEAM LINKAS"]}">📋</button>
@@ -251,10 +251,6 @@ function populateTable(data) {
         `;
         dataTableBody.appendChild(row);
     });
-    
-    // Add event listeners to all copy buttons are the same
-    // ...
-
     
     // Add event listeners to all copy buttons
     document.querySelectorAll('.copy-btn').forEach(button => {
@@ -267,11 +263,11 @@ function populateTable(data) {
                     this.textContent = '✓';
                     setTimeout(() => {
                         this.classList.remove('copy-flash');
-                        this.textContent = '🧾';
+                        this.textContent = '📋';
                     }, 1000);
                 })
                 .catch(err => {
-                    console.error('Failed to cop: ', err);
+                    console.error('Failed to copy: ', err);
                 });
         });
     });
