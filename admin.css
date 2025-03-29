@@ -542,36 +542,17 @@ width 100px;
     align-items: center;
     z-index: 9999;
 }
-.data-field {
-    display: inline-block;
-    vertical-align: middle;
-}
-
 .copy-btn {
     font-size: 0.7rem;
     padding: 0;
-    margin-left: 4px;
+    margin-left: 2px;
     line-height: 1;
     vertical-align: middle;
     border: none;
     background: transparent;
     cursor: pointer;
-    border-radius: 3px;
-    display: inline-block;
-}
-
-.copy-btn:hover {
-    background-color: #f0f0f0;
 }
 
 .copy-flash {
-    background-color: #4CAF50 !important;
-    color: white;
-}
-
-/* Make table cells use inline flex to better align content */
-#data-table td {
-    display: flex;
-    align-items: center;
-    gap: 4px;
+    color: #4CAF50;
 }
