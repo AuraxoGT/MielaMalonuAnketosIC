@@ -267,7 +267,7 @@ function populateTable(data) {
                     }, 1000);
                 })
                 .catch(err => {
-                    console.error('Failed to copy: ', err);
+                    console.error('Failed to cop: ', err);
                 });
         });
     });
