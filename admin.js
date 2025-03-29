@@ -238,14 +238,14 @@ function populateTable(data) {
     data.forEach((item, index) => {
         const row = document.createElement("tr");
         row.innerHTML = `
-            <td>${index + 1}.</td> <!-- Row number -->
-            <td>${item.DISCORD_ID} <button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
-            <td>${item.USERIS} <button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
-            <td>${item.VARDAS} <button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
-            <td>${item.PAVARDĖ} <button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
-            <td>${item["STEAM NICKAS"]} <button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
+            <td>${index + 1}.</td>
+            <td><span class="data-field">${item.DISCORD_ID}</span><button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
+            <td><span class="data-field">${item.USERIS}</span><button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
+            <td><span class="data-field">${item.VARDAS}</span><button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
+            <td><span class="data-field">${item.PAVARDĖ}</span><button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
+            <td><span class="data-field">${item["STEAM NICKAS"]}</span><button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
             <td>
-              <a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a>
+              <span class="data-field"><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></span>
               <button class="copy-btn" data-copy="${item["STEAM LINKAS"]}">📋</button>
             </td>
         `;
@@ -272,7 +272,6 @@ function populateTable(data) {
         });
     });
 }
-
     // Event Listeners
     document.getElementById("statusButton").addEventListener("click", toggleStatus);
     document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
