@@ -265,7 +265,7 @@ function populateTable(data) {
                     // Only change text content if it's not the clipboard icon
                     if (this.textContent !== '📋') {
                         this.setAttribute('data-original-text', originalText);
-                        this.textContent = 'Copied!';
+                        this.textContent = 'Nukopijuota ✅!';
                     } else {
                         this.textContent = '✓';
                     }
