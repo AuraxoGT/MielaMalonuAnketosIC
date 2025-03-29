@@ -1,4 +1,4 @@
-document.addEventListener("DOMContentLoaded", async function () {
+document.addEventListener("DOMContentLoaded", function() {
     console.log("✅ Admin panel loaded!");
 
     const CONFIG = {
@@ -14,31 +14,52 @@ document.addEventListener("DOMContentLoaded", async function () {
     let blacklist = [];
     let isOnline = "offline";
 
-    // Blurring functionality
-    function blurContent() {
-        document.body.classList.add('blurred-content');
+    // Immediately blur content on page load - before any other operations
+    document.body.classList.add('blurred-content');
+    
+    // Create authorization overlay
+    function createAuthorizationOverlay() {
+        const overlay = document.createElement('div');
+        overlay.className = 'authorization-overlay';
+        overlay.innerHTML = '<div class="container"><h2>Admin Authentication Required</h2><p>Please enter your admin password to continue.</p></div>';
+        document.body.appendChild(overlay);
+        return overlay;
     }
+    
+    const authOverlay = createAuthorizationOverlay();
 
-    function unblurContent() {
-        document.body.classList.remove('blurred-content');
-    }
-
-    // Modify the existing authenticateUser function
+    // Authentication logic
     async function authenticateUser() {
-        blurContent(); // Always start blurred
         const userPassword = prompt("🔒 Enter Admin Password:");
+        
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
-            unblurContent(); // Unblur only on correct password
             console.log("✅ Password correct, loading data...");
-            await fetchSupabaseData();
-            await fetchBlacklist();
-            await fetchStatus();
+            
+            try {
+                // Load all data first
+                await Promise.all([
+                    fetchSupabaseData(),
+                    fetchBlacklist(),
+                    fetchStatus()
+                ]);
+                
+                // Then remove blur and overlay once everything is loaded
+                document.body.classList.remove('blurred-content');
+                if (authOverlay) {
+                    authOverlay.remove();
+                }
+                
+                console.log("✅ Authentication successful and data loaded!");
+            } catch (error) {
+                console.error("❌ Error loading data:", error);
+                alert("⚠️ Error loading data. Please try again.");
+                location.reload();
+            }
         } else {
             alert("❌ Incorrect password! Reloading...");
             location.reload();
         }
     }
-
 
     // Fetch Supabase Data
     async function fetchSupabaseData() {
@@ -55,10 +76,12 @@ document.addEventListener("DOMContentLoaded", async function () {
 
             fetchedData = await response.json();
             populateTable(fetchedData);
+            return fetchedData;
 
         } catch (error) {
             console.error("❌ Error fetching Supabase data:", error);
             alert("⚠️ Unable to fetch data from Supabase.");
+            throw error;
         }
     }
 
@@ -83,17 +106,24 @@ document.addEventListener("DOMContentLoaded", async function () {
                 console.log("❌ No blacklist found in Supabase.");
                 blacklist = [];
             }
+            return blacklist;
         } catch (error) {
             console.error("❌ Error fetching blacklist:", error);
             alert("⚠️ Unable to fetch blacklist.");
+            throw error;
         }
     }
 
     // Add User to Blacklist
     async function addToBlacklist() {
         const userId = prompt("Enter the User ID to Blacklist:");
-        if (!userId || blacklist.includes(userId)) {
-            alert("⚠️ User already in blacklist or invalid input.");
+        if (!userId) {
+            alert("⚠️ Invalid input.");
+            return;
+        }
+        
+        if (blacklist.includes(userId)) {
+            alert("⚠️ User already in blacklist.");
             return;
         }
 
@@ -123,7 +153,12 @@ document.addEventListener("DOMContentLoaded", async function () {
     // Remove User from Blacklist
     async function removeFromBlacklist() {
         const userId = prompt("Enter the User ID to Remove from Blacklist:");
-        if (!userId || !blacklist.includes(userId)) {
+        if (!userId) {
+            alert("⚠️ Invalid input.");
+            return;
+        }
+        
+        if (!blacklist.includes(userId)) {
             alert("⚠️ User not found in blacklist.");
             return;
         }
@@ -176,21 +211,26 @@ document.addEventListener("DOMContentLoaded", async function () {
                 isOnline = "offline";
             }
             updateStatusDisplay();
-function updateStatusDisplay() {
-    const statusDisplay = document.getElementById("statusDisplay");
-    if (isOnline === "online") {
-        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
-        statusDisplay.classList.add("status-online");
-        statusDisplay.classList.remove("status-offline");
-    } else {
-        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
-        statusDisplay.classList.add("status-offline");
-        statusDisplay.classList.remove("status-online");
-    }
-}
-
+            return isOnline;
         } catch (error) {
             console.error("❌ Error fetching status:", error);
+            throw error;
+        }
+    }
+
+    // Update Status Display
+    function updateStatusDisplay() {
+        const statusDisplay = document.getElementById("statusDisplay");
+        if (statusDisplay) {
+            if (isOnline === "online") {
+                statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
+                statusDisplay.classList.add("status-online");
+                statusDisplay.classList.remove("status-offline");
+            } else {
+                statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
+                statusDisplay.classList.add("status-offline");
+                statusDisplay.classList.remove("status-online");
+            }
         }
     }
 
@@ -201,7 +241,7 @@ function updateStatusDisplay() {
         updateStatusDisplay();
 
         try {
-            await fetch(`${CONFIG.SUPABASE.URL}/Status?id=eq.${BLACKLIST_ID}`, {
+            const response = await fetch(`${CONFIG.SUPABASE.URL}/Status?id=eq.${BLACKLIST_ID}`, {
                 method: "PATCH",
                 headers: {
                     "apikey": CONFIG.SUPABASE.API_KEY,
@@ -211,100 +251,129 @@ function updateStatusDisplay() {
                 body: JSON.stringify({ status: isOnline }) // Now sending "online" or "offline"
             });
 
+            if (!response.ok) throw new Error("⚠️ Failed to update status");
             console.log(`🔄 Status changed to: ${isOnline}`);
         } catch (error) {
             console.error("❌ Error updating status:", error);
+            alert("⚠️ Unable to update status.");
         }
     }
 
-    function updateStatusDisplay() {
-    const statusDisplay = document.getElementById("statusDisplay");
-    if (isOnline === "online") {
-        statusDisplay.textContent = "✅ Anketos atidarytos ✅"; // Custom text for online
-    } else {
-        statusDisplay.textContent = "❌ Anketos uždarytos ❌"; // Custom text for offline
-    }
-    // Update class logic based on string values
-    statusDisplay.classList.toggle("status-online", isOnline === "online");
-    statusDisplay.classList.toggle("status-offline", isOnline === "offline");
-}
-
-
     // Populate Table
-function populateTable(data) {
-    const dataTableBody = document.querySelector("#data-table tbody");
-    dataTableBody.innerHTML = "";
+    function populateTable(data) {
+        const dataTableBody = document.querySelector("#data-table tbody");
+        if (!dataTableBody) {
+            console.error("❌ Could not find table body element");
+            return;
+        }
+        
+        dataTableBody.innerHTML = "";
 
-    data.forEach((item, index) => {
-        const row = document.createElement("tr");
-        row.innerHTML = `
-            <td>${index + 1}.</td> <!-- Row number -->
-            <td><span class="copy-text" data-copy="${item.DISCORD_ID}">${item.DISCORD_ID}</span></td>
-            <td><span class="copy-text" data-copy="${item.USERIS}">${item.USERIS}</span></td>
-            <td><span class="copy-text" data-copy="${item.VARDAS}">${item.VARDAS}</span></td>
-            <td><span class="copy-text" data-copy="${item.PAVARDĖ}">${item.PAVARDĖ}</span></td>
-            <td><span class="copy-text" data-copy="${item["STEAM NICKAS"]}">${item["STEAM NICKAS"]}</span></td>
-            <td>
-              <a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a>
-              <span class="copy-text" data-copy="${item["STEAM LINKAS"]}">📋</span>
-            </td>
-        `;
-        dataTableBody.appendChild(row);
-    });
-    
-    // Add event listeners to all copy text elements
-    document.querySelectorAll('.copy-text').forEach(element => {
-        element.addEventListener('click', function() {
-            const textToCopy = this.getAttribute('data-copy');
-            navigator.clipboard.writeText(textToCopy)
-                .then(() => {
-                    // Visual feedback
-                    const originalText = this.textContent;
-                    this.classList.add('copy-flash');
-                    
-                    // Only change text content if it's not the clipboard icon
-                    if (this.textContent !== '📋') {
-                        this.setAttribute('data-original-text', originalText);
-                        this.textContent = 'Nukopijuota ✅';
-                    } else {
-                        this.textContent = '✓';
-                    }
-                    
-                    setTimeout(() => {
-                        this.classList.remove('copy-flash');
-                        
-                        // Restore original text if it was changed
-                        if (this.hasAttribute('data-original-text')) {
-                            this.textContent = this.getAttribute('data-original-text');
-                            this.removeAttribute('data-original-text');
-                        } else if (this.textContent === '✓') {
-                            this.textContent = '📋';
-                        }
-                    }, 1000);
-                })
-                .catch(err => {
-                    console.error('Failed to copy: ', err);
-                });
+        data.forEach((item, index) => {
+            const row = document.createElement("tr");
+            row.innerHTML = `
+                <td>${index + 1}.</td> <!-- Row number -->
+                <td><span class="copy-text" data-copy="${item.DISCORD_ID || ''}">${item.DISCORD_ID || ''}</span></td>
+                <td><span class="copy-text" data-copy="${item.USERIS || ''}">${item.USERIS || ''}</span></td>
+                <td><span class="copy-text" data-copy="${item.VARDAS || ''}">${item.VARDAS || ''}</span></td>
+                <td><span class="copy-text" data-copy="${item.PAVARDĖ || ''}">${item.PAVARDĖ || ''}</span></td>
+                <td><span class="copy-text" data-copy="${item["STEAM NICKAS"] || ''}">${item["STEAM NICKAS"] || ''}</span></td>
+                <td>
+                  <a href="${item["STEAM LINKAS"] || '#'}" target="_blank">🔗 Steam Profilis</a>
+                  <span class="copy-text" data-copy="${item["STEAM LINKAS"] || ''}">📋</span>
+                </td>
+            `;
+            dataTableBody.appendChild(row);
         });
-    });
-}
-    // Event Listeners
-    document.getElementById("statusButton").addEventListener("click", toggleStatus);
-    document.getElementById("blacklistButton").addEventListener("click", addToBlacklist);
-    document.getElementById("removeButton").addEventListener("click", removeFromBlacklist);
+        
+        // Add event listeners to all copy text elements
+        document.querySelectorAll('.copy-text').forEach(element => {
+            element.addEventListener('click', function() {
+                const textToCopy = this.getAttribute('data-copy');
+                if (!textToCopy) return;
+                
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => {
+                        // Visual feedback
+                        const originalText = this.textContent;
+                        this.classList.add('copy-flash');
+                        
+                        // Only change text content if it's not the clipboard icon
+                        if (this.textContent !== '📋') {
+                            this.setAttribute('data-original-text', originalText);
+                            this.textContent = 'Nukopijuota ✅';
+                        } else {
+                            this.textContent = '✓';
+                        }
+                        
+                        setTimeout(() => {
+                            this.classList.remove('copy-flash');
+                            
+                            // Restore original text if it was changed
+                            if (this.hasAttribute('data-original-text')) {
+                                this.textContent = this.getAttribute('data-original-text');
+                                this.removeAttribute('data-original-text');
+                            } else if (this.textContent === '✓') {
+                                this.textContent = '📋';
+                            }
+                        }, 1000);
+                    })
+                    .catch(err => {
+                        console.error('Failed to copy: ', err);
+                    });
+            });
+        });
+    }
 
- document.getElementById("searchInput").addEventListener("input", function () {
-        const searchInput = this.value.toLowerCase();
+    // Setup search functionality
+    function setupSearch() {
+        const searchInput = document.getElementById("searchInput");
+        if (searchInput) {
+            searchInput.addEventListener("input", function() {
+                const searchTerm = this.value.toLowerCase();
+                
+                if (!fetchedData || !Array.isArray(fetchedData)) {
+                    console.error("❌ No data available for search");
+                    return;
+                }
 
-        const filteredData = fetchedData.filter(item => 
-            Object.values(item).some(value => 
-                value.toString().toLowerCase().includes(searchInput)
-            )
-        );
+                const filteredData = fetchedData.filter(item => 
+                    Object.values(item).some(value => 
+                        value && value.toString().toLowerCase().includes(searchTerm)
+                    )
+                );
 
-        populateTable(filteredData); // Re-populate table with filtered results
-    });
+                populateTable(filteredData); // Re-populate table with filtered results
+            });
+        }
+    }
 
-    // Authenticate once and fetch data
-    authenticateUser();
+    // Setup event listeners
+    function setupEventListeners() {
+        const statusButton = document.getElementById("statusButton");
+        const blacklistButton = document.getElementById("blacklistButton");
+        const removeButton = document.getElementById("removeButton");
+
+        if (statusButton) {
+            statusButton.addEventListener("click", toggleStatus);
+        }
+        
+        if (blacklistButton) {
+            blacklistButton.addEventListener("click", addToBlacklist);
+        }
+        
+        if (removeButton) {
+            removeButton.addEventListener("click", removeFromBlacklist);
+        }
+    }
+
+    // Initialize the application
+    function init() {
+        setupEventListeners();
+        setupSearch();
+        authenticateUser(); // Start authentication process
+    }
+
+    // Start the application
+    init();
 });
