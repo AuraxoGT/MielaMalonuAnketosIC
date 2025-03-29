@@ -14,8 +14,7 @@ document.addEventListener("DOMContentLoaded", function() {
     let blacklist = [];
     let isOnline = "offline";
 
-    // Immediately blur content on page load - before any other operations
-    document.body.classList.add('blurred-content');
+    // Don't blur on page load - we'll add blur when prompting for password
     
     // Create authorization overlay
     function createAuthorizationOverlay() {
@@ -25,11 +24,13 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.appendChild(overlay);
         return overlay;
     }
-    
-    const authOverlay = createAuthorizationOverlay();
 
     // Authentication logic
     async function authenticateUser() {
+        // Add blur BEFORE showing the password prompt
+        document.body.classList.add('blurred-content');
+        
+        const authOverlay = createAuthorizationOverlay();
         const userPassword = prompt("🔒 Enter Admin Password:");
         
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
