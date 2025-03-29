@@ -14,6 +14,13 @@
 <div class="search-container">
         <input type="text" id="searchInput" placeholder="🔍 Ieškoti pagal bet kokį lauką..." onkeyup="filterTable()">
     </div>
+<div id="auth-overlay" class="auth-overlay">
+    <div>
+        <h2>Admin Authentication</h2>
+        <input type="password" id="admin-password" placeholder="Enter Password">
+        <button onclick="checkPassword()">Login</button>
+    </div>
+</div>
 
             <thead>
                 <tr>
