@@ -542,18 +542,18 @@ width 100px;
     align-items: center;
     z-index: 9999;
 }
-.copy-btn {
-    font-size: 0.7rem;
-    padding: 0 3px;
-    margin-left: 5px;
-    line-height: 1;
-    vertical-align: middle;
-    border: none;
-    background: transparent;
+.copy-text {
     cursor: pointer;
+    position: relative;
     display: inline-block;
+}
+
+.copy-text:hover {
+    text-decoration: underline;
+    color: #4CAF50;
 }
 
 .copy-flash {
     color: #4CAF50;
+    font-weight: bold;
 }
