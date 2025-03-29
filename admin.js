@@ -239,31 +239,47 @@ function populateTable(data) {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${index + 1}.</td> <!-- Row number -->
-            <td>${item.DISCORD_ID} <button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
-            <td>${item.USERIS} <button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
-            <td>${item.VARDAS} <button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
-            <td>${item.PAVARDĖ} <button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
-            <td>${item["STEAM NICKAS"]} <button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
+            <td><span class="copy-text" data-copy="${item.DISCORD_ID}">${item.DISCORD_ID}</span></td>
+            <td><span class="copy-text" data-copy="${item.USERIS}">${item.USERIS}</span></td>
+            <td><span class="copy-text" data-copy="${item.VARDAS}">${item.VARDAS}</span></td>
+            <td><span class="copy-text" data-copy="${item.PAVARDĖ}">${item.PAVARDĖ}</span></td>
+            <td><span class="copy-text" data-copy="${item["STEAM NICKAS"]}">${item["STEAM NICKAS"]}</span></td>
             <td>
               <a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a>
-              <button class="copy-btn" data-copy="${item["STEAM LINKAS"]}">📋</button>
+              <span class="copy-text" data-copy="${item["STEAM LINKAS"]}">📋</span>
             </td>
         `;
         dataTableBody.appendChild(row);
     });
     
-    // Add event listeners to all copy buttons
-    document.querySelectorAll('.copy-btn').forEach(button => {
-        button.addEventListener('click', function() {
+    // Add event listeners to all copy text elements
+    document.querySelectorAll('.copy-text').forEach(element => {
+        element.addEventListener('click', function() {
             const textToCopy = this.getAttribute('data-copy');
             navigator.clipboard.writeText(textToCopy)
                 .then(() => {
                     // Visual feedback
+                    const originalText = this.textContent;
                     this.classList.add('copy-flash');
-                    this.textContent = '✓';
+                    
+                    // Only change text content if it's not the clipboard icon
+                    if (this.textContent !== '📋') {
+                        this.setAttribute('data-original-text', originalText);
+                        this.textContent = 'Copied!';
+                    } else {
+                        this.textContent = '✓';
+                    }
+                    
                     setTimeout(() => {
                         this.classList.remove('copy-flash');
-                        this.textContent = '📋';
+                        
+                        // Restore original text if it was changed
+                        if (this.hasAttribute('data-original-text')) {
+                            this.textContent = this.getAttribute('data-original-text');
+                            this.removeAttribute('data-original-text');
+                        } else if (this.textContent === '✓') {
+                            this.textContent = '📋';
+                        }
                     }, 1000);
                 })
                 .catch(err => {
