@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.classList.add('blurred-content');
         
         const authOverlay = createAuthorizationOverlay();
-        const userPassword = prompt("🔒 Enter Admin Password:");
+        const userPassword = prompt("🔒 Iveskite admin password:");
         
         if (userPassword === CONFIG.ADMIN_PASSWORD) {
             console.log("✅ Password correct, loading data...");
