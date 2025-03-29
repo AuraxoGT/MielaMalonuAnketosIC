@@ -267,7 +267,7 @@ function populateTable(data) {
                     this.textContent = '✓';
                     setTimeout(() => {
                         this.classList.remove('copy-flash');
-                        this.textContent = '📋';
+                        this.textContent = '🧾';
                     }, 1000);
                 })
                 .catch(err => {
