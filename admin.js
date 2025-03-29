@@ -239,17 +239,39 @@ function populateTable(data) {
         const row = document.createElement("tr");
         row.innerHTML = `
             <td>${index + 1}.</td> <!-- Row number -->
-            <td>${item.DISCORD_ID}</td>
-            <td>${item.USERIS}</td>
-            <td>${item.VARDAS}</td>
-            <td>${item.PAVARDĖ}</td>
-            <td>${item["STEAM NICKAS"]}</td>
-            <td><a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a></td>
+            <td>${item.DISCORD_ID} <button class="copy-btn" data-copy="${item.DISCORD_ID}">📋</button></td>
+            <td>${item.USERIS} <button class="copy-btn" data-copy="${item.USERIS}">📋</button></td>
+            <td>${item.VARDAS} <button class="copy-btn" data-copy="${item.VARDAS}">📋</button></td>
+            <td>${item.PAVARDĖ} <button class="copy-btn" data-copy="${item.PAVARDĖ}">📋</button></td>
+            <td>${item["STEAM NICKAS"]} <button class="copy-btn" data-copy="${item["STEAM NICKAS"]}">📋</button></td>
+            <td>
+              <a href="${item["STEAM LINKAS"]}" target="_blank">🔗 Steam Profilis</a>
+              <button class="copy-btn" data-copy="${item["STEAM LINKAS"]}">📋</button>
+            </td>
         `;
         dataTableBody.appendChild(row);
     });
+    
+    // Add event listeners to all copy buttons
+    document.querySelectorAll('.copy-btn').forEach(button => {
+        button.addEventListener('click', function() {
+            const textToCopy = this.getAttribute('data-copy');
+            navigator.clipboard.writeText(textToCopy)
+                .then(() => {
+                    // Visual feedback
+                    this.classList.add('copy-flash');
+                    this.textContent = '✓';
+                    setTimeout(() => {
+                        this.classList.remove('copy-flash');
+                        this.textContent = '📋';
+                    }, 1000);
+                })
+                .catch(err => {
+                    console.error('Failed to copy: ', err);
+                });
+        });
+    });
 }
-
 
     // Event Listeners
     document.getElementById("statusButton").addEventListener("click", toggleStatus);
