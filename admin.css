@@ -324,7 +324,7 @@ button:hover {
 }
 
 #profile-container button::before {
-    content: "🚪";
+    content: "";
     filter: brightness(1.2);
 }
 
